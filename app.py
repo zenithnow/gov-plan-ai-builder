@@ -131,14 +131,21 @@ with st.sidebar:
     st.markdown("---")
 
     st.markdown("**⚙️ API 설정**")
-    api_key_input = st.text_input(
-        "Anthropic API Key",
-        value=st.session_state.api_key,
-        type="password",
-        placeholder="sk-ant-...",
-    )
-    if api_key_input:
-        st.session_state.api_key = api_key_input
+    _secret_key = get_api_key()
+    if _secret_key:
+        # Secrets/환경변수에 키가 있으면 입력창 숨김
+        st.success("API Key 설정됨", icon="🔒")
+        st.session_state.api_key = _secret_key
+    else:
+        # 로컬 개발용 — 직접 입력
+        api_key_input = st.text_input(
+            "Anthropic API Key",
+            value="",
+            type="password",
+            placeholder="sk-ant-...",
+        )
+        if api_key_input:
+            st.session_state.api_key = api_key_input
 
     st.markdown("---")
     st.markdown("**📋 구현 단계**")
