@@ -7,9 +7,11 @@ Step 3: Agent 3 (성장 전략) + market_size_calculator Tool Use
 import os
 import sys
 import json
+import datetime
 import streamlit as st
 import anthropic
 from dotenv import load_dotenv
+from streamlit_local_storage import LocalStorage
 
 # Windows 환경에서 stdout/stderr 인코딩을 UTF-8로 강제 설정
 if sys.stdout and hasattr(sys.stdout, "reconfigure"):
@@ -117,12 +119,56 @@ def init_session():
         "step": 0,
         "api_key": get_api_key(),
         "eval_result": None,
+        "saved_plans": [],       # 세션 내 저장 목록
+        "view_saved_idx": None,  # 불러보기 인덱스
     }
     for k, v in defaults.items():
         if k not in st.session_state:
             st.session_state[k] = v
 
 init_session()
+
+# ── LocalStorage 인스턴스 (브라우저 영구 저장) ────────────────────────────────
+_ls = LocalStorage()
+
+def _ls_load() -> list:
+    """localStorage에서 저장 목록 불러오기"""
+    try:
+        raw = _ls.getItem("gov_plan_saved")
+        if raw:
+            return json.loads(raw) if isinstance(raw, str) else raw
+    except Exception:
+        pass
+    return []
+
+def _ls_save(plans: list):
+    """localStorage에 저장 목록 쓰기"""
+    try:
+        _ls.setItem("gov_plan_saved", json.dumps(plans, ensure_ascii=False))
+    except Exception:
+        pass
+
+def save_current_plan(ctx, label: str = ""):
+    """현재 컨텍스트를 저장 목록에 추가"""
+    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+    title = label.strip() or ctx.user_idea[:30].replace("\n", " ") + "…"
+    entry = {
+        "title": title,
+        "saved_at": now,
+        "user_idea": ctx.user_idea,
+        "problem_draft": ctx.problem_draft,
+        "solution_draft": ctx.solution_draft,
+        "growth_draft": ctx.growth_draft,
+        "final_doc": ctx.final_doc,
+        "core_keywords": ctx.core_keywords,
+        "market_data": {k: v for k, v in ctx.market_data.items() if k != "markdown_table"},
+        "final_eval_pct": ctx.final_eval.get("overall_pct") if ctx.final_eval else None,
+    }
+    plans = _ls_load()
+    plans.insert(0, entry)
+    plans = plans[:20]   # 최대 20개 유지
+    _ls_save(plans)
+    st.session_state.saved_plans = plans
 
 
 # ── 사이드바 ─────────────────────────────────────────────────────────────────
@@ -174,6 +220,31 @@ with st.sidebar:
                   5:"Step 3 실행 중", 6:"Step 3 완료",
                   7:"Step 4 실행 중", 8:"완료"}.get(s, "")
     st.caption(f"현재: **{step_label}**")
+
+    # ── 저장된 계획서 목록 ──────────────────────────────────────────────────
+    st.markdown("---")
+    st.markdown("**💾 저장된 계획서**")
+
+    saved_plans = _ls_load()
+    if not saved_plans:
+        st.caption("아직 저장된 계획서가 없습니다.")
+    else:
+        for i, plan in enumerate(saved_plans):
+            score_str = f" · {plan['final_eval_pct']}점" if plan.get("final_eval_pct") else ""
+            col_a, col_b = st.columns([3, 1])
+            with col_a:
+                if st.button(
+                    f"📄 {plan['title']}\n{plan['saved_at']}{score_str}",
+                    key=f"view_plan_{i}",
+                    use_container_width=True,
+                ):
+                    st.session_state.view_saved_idx = i
+                    st.rerun()
+            with col_b:
+                if st.button("🗑️", key=f"del_plan_{i}", help="삭제"):
+                    saved_plans.pop(i)
+                    _ls_save(saved_plans)
+                    st.rerun()
 
 
 # ── 메인 헤더 ─────────────────────────────────────────────────────────────────
@@ -421,9 +492,15 @@ with col_output:
         )
 
         st.markdown("---")
-        if st.button("⚡ Step 3 — 성장 전략 작성 (TAM-SAM-SOM)", type="primary", use_container_width=True):
-            st.session_state.step = 5
-            st.rerun()
+        s2_col1, s2_col2 = st.columns([2, 1])
+        with s2_col1:
+            if st.button("⚡ Step 3 — 성장 전략 작성 (TAM-SAM-SOM)", type="primary", use_container_width=True):
+                st.session_state.step = 5
+                st.rerun()
+        with s2_col2:
+            if st.button("💾 현재까지 저장", use_container_width=True):
+                save_current_plan(ctx)
+                st.success("저장됨!")
 
         with st.expander("🔍 SharedContext"):
             st.json({"core_keywords": ctx.core_keywords, "bridge_validated": ctx.bridge_validated})
@@ -508,9 +585,15 @@ with col_output:
         )
 
         st.markdown("---")
-        if st.button("⚡ Step 4 — 최종 검토 & 완성본 출력", type="primary", use_container_width=True):
-            st.session_state.step = 7
-            st.rerun()
+        s3_col1, s3_col2 = st.columns([2, 1])
+        with s3_col1:
+            if st.button("⚡ Step 4 — 최종 검토 & 완성본 출력", type="primary", use_container_width=True):
+                st.session_state.step = 7
+                st.rerun()
+        with s3_col2:
+            if st.button("💾 현재까지 저장", use_container_width=True, key="save_s3"):
+                save_current_plan(ctx)
+                st.success("저장됨!")
 
         with st.expander("🔍 SharedContext"):
             st.json({
@@ -638,6 +721,16 @@ with col_output:
                 use_container_width=True,
             )
 
+        # 저장 버튼
+        st.markdown("---")
+        save_col1, save_col2 = st.columns([2, 1])
+        with save_col1:
+            save_label = st.text_input("저장 이름 (선택)", placeholder="예: AI 안전솔루션 v1", label_visibility="collapsed")
+        with save_col2:
+            if st.button("💾 이 계획서 저장", type="secondary", use_container_width=True):
+                save_current_plan(ctx, label=save_label)
+                st.success("저장 완료! 왼쪽 메뉴에서 확인하세요.")
+
         with st.expander("🔍 SharedContext 전체"):
             st.json({
                 "core_keywords": ctx.core_keywords,
@@ -645,6 +738,42 @@ with col_output:
                 "market_data": {k: v for k, v in ctx.market_data.items() if k != "markdown_table"},
                 "final_eval_pct": fe.get("overall_pct") if fe else None,
             })
+
+    # ━━━ 저장된 계획서 뷰어 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    if st.session_state.view_saved_idx is not None:
+        idx = st.session_state.view_saved_idx
+        plans = _ls_load()
+        if idx < len(plans):
+            plan = plans[idx]
+            with st.container():
+                st.markdown("---")
+                st.markdown(
+                    f'<div class="card card-success">'
+                    f'<span class="step-badge badge-done">📄 저장된 계획서</span>'
+                    f"<h4 style='margin:0.4rem 0 0.2rem;color:#1f2937'>{plan['title']}</h4>"
+                    f"<span style='font-size:0.8rem;color:#6b7280'>저장일시: {plan['saved_at']}"
+                    + (f" · 최종점수: {plan['final_eval_pct']}점" if plan.get("final_eval_pct") else "")
+                    + "</span></div>",
+                    unsafe_allow_html=True,
+                )
+
+                tabs = st.tabs(["문제인식", "해결방안", "성장전략", "최종본"])
+                tag = lambda t: t.replace("[통계데이터_확인필요]", "**`[통계데이터_확인필요]`**").replace("[수치데이터_확인필요]", "**`[수치데이터_확인필요]`**")
+                with tabs[0]: st.markdown(tag(plan.get("problem_draft", "(없음)")))
+                with tabs[1]: st.markdown(tag(plan.get("solution_draft", "(없음)")))
+                with tabs[2]: st.markdown(tag(plan.get("growth_draft", "(없음)")))
+                with tabs[3]: st.markdown(tag(plan.get("final_doc", "(없음)")))
+
+                col_v1, col_v2 = st.columns(2)
+                with col_v1:
+                    final_text = plan.get("final_doc") or plan.get("growth_draft", "")
+                    st.download_button("📥 다운로드", data=final_text.encode("utf-8"),
+                                       file_name="saved_plan.md", mime="text/markdown",
+                                       use_container_width=True)
+                with col_v2:
+                    if st.button("✖ 닫기", use_container_width=True):
+                        st.session_state.view_saved_idx = None
+                        st.rerun()
 
     # ━━━ 대기 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     else:
