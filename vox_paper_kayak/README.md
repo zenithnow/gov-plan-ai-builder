@@ -7,27 +7,33 @@ Kling으로 찢어진 종이 콜라주 스타일의 카약 패들링 포즈 5장
 frame_01 → 02 → 03 → 04 → 05 → 01 → …   (24fps, 한 장당 3프레임 = 초당 8장)
 ```
 
+결과물: `output/kayak_loop.mp4` (1920x1080, 8초, push-in) · `output/kayak_loop.gif` (720px, 2.5초 무한 루프)
+
 ## 빠른 실행
 
 ```bash
 cd vox_paper_kayak
 pip install -r requirements.txt          # ffmpeg 도 필요
-python fetch_frames.py                   # Kling 결과 5장을 frames/ 로 (URL 24시간 내)
-python paper_motion.py --gif output/kayak_loop.gif
-# → output/kayak_loop.mp4 (1920x1080, 8초) + output/kayak_loop.gif
+python paper_motion.py                   # → output/kayak_loop.mp4
+
+# 끊김 없는 GIF 루프 (동작 4회, 카메라 이동 없음)
+python paper_motion.py --cycles 4 --zoom-start 1.05 --zoom-end 1.05 \
+    --out output/gif_src.mp4 --gif output/kayak_loop.gif
 ```
+
+`frames/` 의 5장은 이미 들어 있다. Kling 원본을 다시 받으려면 `python fetch_frames.py` (URL은 생성 후 24시간 유효).
 
 ## 5단계 패들링 사이클
 
-카메라는 측면, 카약은 왼쪽→오른쪽으로 진행. "근측"은 화면 앞쪽(인물의 오른쪽) 블레이드.
+측면 뷰, 인물은 화면 왼쪽을 보고 앉아 있다. 화면 앞쪽 블레이드 하나로 한 번의 스트로크를 보여준다.
 
-| # | 포즈 | 설명 |
-|---|------|------|
-| 1 | 근측 캐치 | 앞쪽 블레이드가 발 앞 물에 들어감, 반대 블레이드는 왼쪽 어깨 위 |
-| 2 | 근측 파워 | 블레이드가 엉덩이 옆 물속에서 뒤로 당겨짐, 종이 물방울 |
-| 3 | 근측 엑시트 | 블레이드가 엉덩이 뒤에서 빠져나오고 패들이 가슴 앞에서 수평 |
-| 4 | 원측 캐치 | 반대편 블레이드가 앞쪽 물에 들어감, 근측 블레이드는 오른쪽 어깨 위 |
-| 5 | 원측 파워 | 반대편 블레이드가 당겨지고 근측 블레이드가 앞으로 → 다시 1번으로 |
+| 파일 | 포즈 | 설명 |
+|------|------|------|
+| frame_01 | 캐치 | 몸을 앞으로 숙이고 블레이드를 앞쪽 물에 꽂음 |
+| frame_02 | 입수 | 블레이드가 앞쪽 물에 들어가며 물보라 |
+| frame_03 | 파워 | 패들을 세워 엉덩이 옆에서 당김, 물보라 |
+| frame_04 | 피니시 | 블레이드가 엉덩이 뒤까지 빠짐 (Kling 기준 프레임) |
+| frame_05 | 엑시트 | 블레이드가 뒤에서 들려 나오며 물방울 → 다시 01로 |
 
 ## Kling 생성 방법 (배경 일관성의 핵심)
 
@@ -37,6 +43,10 @@ python paper_motion.py --gif output/kayak_loop.gif
 2. 나머지 4장은 **모두 같은 기준 프레임에서** `kling-image-o1` image_to_image 로 "팔과 패들만 바꿔라" 편집
 
 연쇄 편집(1→2→3…)이 아니라 항상 1번에서 편집해야 오차가 누적되지 않는다.
+
+> 실제 생성에서는 프롬프트의 "left to right" 와 달리 인물이 왼쪽을 보고 나왔고, 포즈도 프롬프트 번호와
+> 다르게 나왔다. 그래서 생성 결과를 보고 동작 순서대로 파일 이름을 다시 붙였다 (`kling_frames.json` 의
+> `kling_order` = 아래 프롬프트 번호). 프롬프트를 재사용할 땐 결과를 보고 순서를 정하는 게 빠르다.
 
 <details>
 <summary>기준 프레임 프롬프트 (text_to_image)</summary>
@@ -87,7 +97,8 @@ torn edges, same colors and lighting. Change ONLY her arms and the double-bladed
 
 ## paper_motion.py 가 하는 일
 
-1. **정렬** – 2~5번을 1번에 ECC 정렬 (편집 생성 때 생기는 미세한 구도 흔들림 제거)
+1. **정렬** – 2~5번을 1번에 아핀 정렬. Kling 편집본은 원본보다 1% 남짓 확대돼 나와서(배경이 1080p 기준 약 10px 밀림)
+   옵티컬 플로우 + RANSAC 으로 배경만 보고 확대·이동을 되돌린다 (정렬 후 배경 오차 중앙값 1px 미만)
 2. **색감 맞춤** – 편집 때 틀어진 전체 톤을 1번에 맞춤
 3. **배경 고정** – 1번과 실제로 달라진 영역(팔·패들·물보라)만 남기고 나머지는 1번 배경으로 통일
 4. **스톱모션 타이밍** – 한 장을 `--hold` 프레임씩 유지
@@ -106,5 +117,7 @@ torn edges, same colors and lighting. Change ONLY her arms and the double-bladed
 | `--zoom-start` / `--zoom-end` | 1.04 / 1.10 | push-in. 같게 두면 카메라 이동 없음 |
 | `--no-lock-bg` | - | 배경 고정 끄기 (배경도 컷마다 살짝 변하는 '보일링' 느낌) |
 | `--lock-threshold` | 30 | 배경 고정 시 움직임으로 볼 색 차이. 패들 끝이 잘리면 낮추고, 배경이 깜빡이면 높임 |
+| `--lock-grow` | 36 | 움직인 영역 확장(px, 입력 해상도 기준). 머리카락 뒤 그림자가 잔상으로 남으면 키움 |
+| `--cycles` | - | 길이를 동작 N회로 딱 맞춤 (끊김 없는 루프용) |
 | `--size` | 1920x1080 | 쇼츠용은 `1080x1920` (가운데를 잘라 씀) |
 | `--save-processed DIR` | - | 정렬·배경고정 결과 5장을 저장해 확인 |

@@ -42,21 +42,29 @@ def load_frames(frames_dir: Path, order: list[int] | None) -> tuple[list[np.ndar
     return frames, paths
 
 
-def align_to(ref: np.ndarray, img: np.ndarray, work_width: int = 960) -> np.ndarray:
-    """img 를 ref 에 맞춰 회전+이동(유클리드) 정렬한다. 실패하면 원본을 돌려준다."""
+def align_to(ref: np.ndarray, img: np.ndarray, work_width: int = 1360, samples: int = 40_000) -> np.ndarray:
+    """img 를 ref 에 맞춰 아핀(확대·이동·회전) 정렬한다.
+
+    Kling 편집본은 원본보다 1% 남짓 확대되거나 밀려 나오는 경우가 많다. 조밀한 옵티컬 플로우로
+    대응점을 만들고 RANSAC 으로 아핀을 추정하면, 실제로 움직인 인물·패들은 이상치로 빠지고
+    배경만으로 정렬된다.
+    """
     h, w = ref.shape[:2]
     k = work_width / w
     small = (work_width, round(h * k))
-    ref_g = cv2.cvtColor(cv2.resize(ref, small, interpolation=cv2.INTER_AREA), cv2.COLOR_RGB2GRAY).astype(np.float32)
-    img_g = cv2.cvtColor(cv2.resize(img, small, interpolation=cv2.INTER_AREA), cv2.COLOR_RGB2GRAY).astype(np.float32)
-    warp = np.eye(2, 3, dtype=np.float32)
-    criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 200, 1e-6)
-    try:
-        _, warp = cv2.findTransformECC(ref_g, img_g, warp, cv2.MOTION_EUCLIDEAN, criteria, None, 5)
-    except cv2.error:
+    ref_g = cv2.cvtColor(cv2.resize(ref, small, interpolation=cv2.INTER_AREA), cv2.COLOR_RGB2GRAY)
+    img_g = cv2.cvtColor(cv2.resize(img, small, interpolation=cv2.INTER_AREA), cv2.COLOR_RGB2GRAY)
+    flow = cv2.DISOpticalFlow_create(cv2.DISOPTICAL_FLOW_PRESET_MEDIUM).calc(ref_g, img_g, None)
+    rng = np.random.default_rng(0)
+    ys = rng.integers(0, small[1], samples)
+    xs = rng.integers(0, small[0], samples)
+    src = np.stack([xs, ys], 1).astype(np.float32)
+    dst = src + flow[ys, xs]
+    m, inliers = cv2.estimateAffine2D(src / k, dst / k, ransacReprojThreshold=2.0 / k)
+    if m is None or inliers.mean() < 0.3:
         return img
-    warp[:, 2] /= k
-    return cv2.warpAffine(img, warp, (w, h), flags=cv2.INTER_LINEAR | cv2.WARP_INVERSE_MAP, borderMode=cv2.BORDER_REFLECT)
+    # m: ref 좌표 -> img 좌표. img 를 ref 좌표계로 가져오려면 역변환으로 샘플링
+    return cv2.warpAffine(img, m, (w, h), flags=cv2.INTER_LINEAR | cv2.WARP_INVERSE_MAP, borderMode=cv2.BORDER_REFLECT)
 
 
 def match_color(ref: np.ndarray, img: np.ndarray, samples: int = 200_000, seed: int = 0) -> np.ndarray:
@@ -87,6 +95,9 @@ def change_mask(ref: np.ndarray, img: np.ndarray, threshold: float, grow: int, f
     mask = (diff > threshold).astype(np.uint8)
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5)))
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (41, 41)))
+    # 정렬 때 반사로 채운 테두리는 움직임이 아니므로 제외
+    edge = round(0.03 * min(mask.shape))
+    mask[:edge], mask[-edge:], mask[:, :edge], mask[:, -edge:] = 0, 0, 0, 0
     if grow > 0:
         mask = cv2.dilate(mask, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2 * grow + 1, 2 * grow + 1)))
     soft = mask.astype(np.float32)
@@ -151,12 +162,13 @@ def main() -> None:
     ap.add_argument("--fps", type=int, default=24)
     ap.add_argument("--hold", type=int, default=3, help="한 장을 유지하는 프레임 수 (24fps 에서 3 = 초당 8장)")
     ap.add_argument("--seconds", type=float, default=8.0, help="영상 길이(초)")
+    ap.add_argument("--cycles", type=int, default=0, help="길이를 동작 N회로 딱 맞춤 (끊김 없는 GIF 루프용, --seconds 무시)")
     ap.add_argument("--no-align", action="store_true", help="프레임 정렬 끄기")
     ap.add_argument("--no-color-match", action="store_true", help="색감 맞춤 끄기")
     ap.add_argument("--no-lock-bg", action="store_true", help="배경 고정 끄기 (각 이미지를 그대로 사용)")
     ap.add_argument("--lock-threshold", type=float, default=30.0, help="배경 고정 시 '움직인 영역'으로 볼 색 차이 (0~255)")
-    ap.add_argument("--lock-grow", type=int, default=18, help="움직인 영역 마스크 확장(px)")
-    ap.add_argument("--lock-feather", type=int, default=10, help="마스크 경계 블러(px)")
+    ap.add_argument("--lock-grow", type=int, default=36, help="움직인 영역 마스크 확장(px, 입력 해상도 기준). 종이 그림자까지 덮을 만큼")
+    ap.add_argument("--lock-feather", type=int, default=16, help="마스크 경계 블러(px, 입력 해상도 기준)")
     ap.add_argument("--jitter", type=float, default=3.0, help="장마다 카메라 흔들림(px, 1080p 기준)")
     ap.add_argument("--rot-jitter", type=float, default=0.2, help="장마다 회전 흔들림(도)")
     ap.add_argument("--flicker", type=float, default=0.015, help="장마다 노출 깜빡임 비율")
@@ -196,7 +208,7 @@ def main() -> None:
     vig = vignette(out_h, out_w, args.vignette)
     px = out_h / 1080  # 흔들림 크기를 해상도에 맞춰 보정
 
-    total = round(args.seconds * args.fps)
+    total = args.cycles * len(drawings) * args.hold if args.cycles else round(args.seconds * args.fps)
     enc = open_encoder(args.out, out_w, out_h, args.fps, args.crf)
     shot = None
     for t in range(total):
@@ -220,7 +232,7 @@ def main() -> None:
     enc.stdin.close()
     if enc.wait() != 0:
         raise SystemExit("ffmpeg 인코딩 실패")
-    print(f"영상 저장: {args.out}  ({total}프레임, {args.seconds:.1f}초, 초당 {args.fps / args.hold:.1f}장)")
+    print(f"영상 저장: {args.out}  ({total}프레임, {total / args.fps:.2f}초, 초당 {args.fps / args.hold:.1f}장)")
 
     if args.gif:
         export_gif(args.out, args.gif, args.fps / args.hold, args.gif_width)

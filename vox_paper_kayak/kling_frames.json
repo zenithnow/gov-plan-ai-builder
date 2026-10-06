@@ -1,34 +1,39 @@
 {
-  "note": "Kling 결과 URL은 생성 후 24시간 뒤 만료됩니다. 만료 전에 fetch_frames.py 로 받아 두세요. (생성일 2026-10-06)",
+  "note": "Kling 결과 URL은 생성 후 24시간 뒤 만료됩니다 (생성일 2026-10-06). 파일 순서 = 패들링 동작 순서.",
   "frames": [
     {
       "file": "frame_01.png",
-      "pose": "근측 캐치 - 앞쪽 블레이드가 발 앞 물에 들어가는 순간, 반대 블레이드는 왼쪽 어깨 위",
-      "url": "https://s15-kling.klingai.com/kimg/EMXN1y8qnwEKBnVwbG9hZBIOeWxhYi1zdHVudC1zZ3AahAFLbGluZ0FJX0tsaW5nQUlfS29sb3JzLXYzXzAtb21uaS10Mmktc3I0NV9kaXN0aWxsX1NHUF9QUk9EX2FpX3dlYl8zMjMyNzQ1MTQ2NTQ0OTZfZjU0NjdmZTZfZGRjNDhhNGQ0YTM2MDMxYTEyNGE3YjExYjMwYjEwYTZ0NmZuZi5wbmc.origin?x-kcdn-pid=112372"
-    },
-    {
-      "file": "frame_02.png",
-      "pose": "근측 파워 - 블레이드가 엉덩이 옆 물속에서 뒤로 당겨짐, 종이 물방울",
-      "url": "https://s15-kling.klingai.com/kimg/EMXN1y8qTAoGdXBsb2FkEg55bGFiLXN0dW50LXNncBoydXBzY2FsZV9fM2Q4ZGQzMTUyZmFhY2M5NGI1NDI3YzkyMTZlZmU4OWN5NTBzYy5wbmc.origin?x-kcdn-pid=112372"
-    },
-    {
-      "file": "frame_03.png",
-      "pose": "근측 엑시트/전환 - 블레이드가 엉덩이 뒤에서 빠져나오고 패들이 가슴 앞에서 수평",
-      "url": "https://s15-kling.klingai.com/kimg/EMXN1y8qTAoGdXBsb2FkEg55bGFiLXN0dW50LXNncBoydXBzY2FsZV9fZDg2NDhkMGI2YzY4YzlhNGZhYjIyNWZiMjg2NDVmMzZyaWFldS5wbmc.origin?x-kcdn-pid=112372"
-    },
-    {
-      "file": "frame_04.png",
-      "pose": "원측 캐치 - 반대편 블레이드가 앞쪽 물에 들어감(선체 뒤로 일부 가려짐), 근측 블레이드는 오른쪽 어깨 위",
+      "pose": "캐치 - 몸을 앞으로 숙이고 블레이드를 앞쪽 물에 꽂음",
+      "kling_order": 4,
       "url": "https://s15-kling.klingai.com/kimg/EMXN1y8qTAoGdXBsb2FkEg55bGFiLXN0dW50LXNncBoydXBzY2FsZV9fYmQ0NmIxMmM0NDYzMmU2NWNmNjEwNTQ2YmRiMDU3ZWI2ZWRyMy5wbmc.origin?x-kcdn-pid=112372"
     },
     {
-      "file": "frame_05.png",
-      "pose": "원측 파워 - 반대편 블레이드가 엉덩이 옆에서 당겨지고, 근측 블레이드는 다음 캐치를 위해 앞으로",
+      "file": "frame_02.png",
+      "pose": "입수 - 블레이드가 앞쪽 물에 들어가며 물보라",
+      "kling_order": 5,
       "url": "https://s15-kling.klingai.com/kimg/EMXN1y8qTAoGdXBsb2FkEg55bGFiLXN0dW50LXNncBoydXBzY2FsZV9fMDNiNGJlODg0OGNkYThhMjg4YzJjNWEzNmQxOGY3ZTNlMnFlOS5wbmc.origin?x-kcdn-pid=112372"
+    },
+    {
+      "file": "frame_03.png",
+      "pose": "파워 - 패들을 세워 엉덩이 옆에서 당김, 물보라",
+      "kling_order": 2,
+      "url": "https://s15-kling.klingai.com/kimg/EMXN1y8qTAoGdXBsb2FkEg55bGFiLXN0dW50LXNncBoydXBzY2FsZV9fM2Q4ZGQzMTUyZmFhY2M5NGI1NDI3YzkyMTZlZmU4OWN5NTBzYy5wbmc.origin?x-kcdn-pid=112372"
+    },
+    {
+      "file": "frame_04.png",
+      "pose": "피니시 - 블레이드가 엉덩이 뒤까지 빠짐 (원본 기준 프레임)",
+      "kling_order": 1,
+      "url": "https://s15-kling.klingai.com/kimg/EMXN1y8qnwEKBnVwbG9hZBIOeWxhYi1zdHVudC1zZ3AahAFLbGluZ0FJX0tsaW5nQUlfS29sb3JzLXYzXzAtb21uaS10Mmktc3I0NV9kaXN0aWxsX1NHUF9QUk9EX2FpX3dlYl8zMjMyNzQ1MTQ2NTQ0OTZfZjU0NjdmZTZfZGRjNDhhNGQ0YTM2MDMxYTEyNGE3YjExYjMwYjEwYTZ0NmZuZi5wbmc.origin?x-kcdn-pid=112372"
+    },
+    {
+      "file": "frame_05.png",
+      "pose": "엑시트 - 블레이드가 뒤에서 들려 나오며 물방울이 떨어짐",
+      "kling_order": 3,
+      "url": "https://s15-kling.klingai.com/kimg/EMXN1y8qTAoGdXBsb2FkEg55bGFiLXN0dW50LXNncBoydXBzY2FsZV9fZDg2NDhkMGI2YzY4YzlhNGZhYjIyNWZiMjg2NDVmMzZyaWFldS5wbmc.origin?x-kcdn-pid=112372"
     }
   ],
   "alternate_base": {
-    "note": "기준 프레임 후보 B (1번 대신 쓰려면 2~5번도 이 이미지 기준으로 다시 편집 생성해야 배경이 일치합니다)",
+    "note": "기준 프레임 후보 B. 쓰려면 나머지 4장도 이 이미지 기준으로 다시 편집 생성해야 배경이 맞습니다.",
     "url": "https://s15-kling.klingai.com/kimg/EMXN1y8qnwEKBnVwbG9hZBIOeWxhYi1zdHVudC1zZ3AahAFLbGluZ0FJX0tsaW5nQUlfS29sb3JzLXYzXzAtb21uaS10Mmktc3I0NV9kaXN0aWxsX1NHUF9QUk9EX2FpX3dlYl8zMjMyNzQ1MTQ2ODU1MDFfOWM5YTk4N2RfNTAwMGQ0Mjc0YjFkZjJjOTRkYmRjZmI4ZDU1MzQ2ZjNqc2NseC5wbmc.origin?x-kcdn-pid=112372"
   }
 }
