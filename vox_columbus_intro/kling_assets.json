@@ -1,0 +1,23 @@
+{
+  "note": "Kling 결과 URL은 생성 후 24시간 뒤 만료됩니다 (생성일 2026-10-06). 사용한 원본은 assets/*_raw.* 에 저장돼 있습니다 (해도는 용량 때문에 JPEG q95 로 변환). 모델: kling-image-v3_0_omni (text_to_image).",
+  "map_raw.jpg": {
+    "settings": "16:9, 4k, 후보 2장 중 A (B 는 멕시코·중미 지도가 나와서 제외)",
+    "prompt": "Flat lay photograph taken directly from above of an antique late-15th-century portolan-style nautical chart of the Atlantic Ocean, printed and hand-inked on aged, stained parchment paper. The coasts of Spain, Portugal and northwest Africa with the Canary Islands sit on the right side; scattered Caribbean islands (Bahamas, Cuba, Hispaniola) sit on the left side; a wide, open, mostly empty ocean fills the middle. Faint thin rhumb lines radiate from two small compass roses. Sepia and brown ink coastlines with faded red and muted green watercolor washes, foxing spots, soft fold creases, slightly uneven paper fibers. Even, soft tabletop lighting, the chart fills the entire frame edge to edge, perfectly top-down, no perspective. No ships, no sea monsters, no people, no modern elements, no readable text or labels.",
+    "url": "https://s15-kling.klingai.com/kimg/EMXN1y8qggEKBnVwbG9hZBIOeWxhYi1zdHVudC1zZ3AaaEtsaW5nQUlfS29sb3JzX0RpVF9IODAwXzFfa29sb3JzX3YzXzBfdDJpX3JlZmluZXItdjNfXzBiYWZhOGZjXzA4MDdhZGFhYWQyMDRmNWEwZTA5NzExZDZmYzk5YTQzZThmbG4ucG5n.origin?x-kcdn-pid=112372"
+  },
+  "ship_raw.png": {
+    "settings": "1:1, 2k, 후보 2장 중 A",
+    "prompt": "A single 15th-century Spanish carrack ship like the Santa Maria, seen in exact side profile with the bow pointing to the left, three masts with full billowing cream canvas sails painted with red crosses, small pennants, rigging lines, dark wooden hull. Rendered as an antique hand-colored woodcut engraving printed on paper, as if clipped from an old history book: fine black ink cross-hatching, muted ochre, sepia and faded red ink, slight print misregistration. The whole ship is centered with margin around it and isolated on a perfectly flat, uniform, solid chroma-key green (#00B140) background. No water, no waves, no sea, no shadow, no frame, no text.",
+    "url": "https://s15-kling.klingai.com/kimg/EMXN1y8qnwEKBnVwbG9hZBIOeWxhYi1zdHVudC1zZ3AahAFLbGluZ0FJX0tsaW5nQUlfS29sb3JzLXYzXzAtb21uaS10Mmktc3I0NV9kaXN0aWxsX1NHUF9QUk9EX2FpX3dlYl8zMjMyNzg2ODM2NTYwMTZfODA4MTEyNjdfM2Y1YzgxNDFkY2RkMGIxMDJhYWRkYzBkYjY0OGI2NDdxOWluaC5wbmc.origin?x-kcdn-pid=112372"
+  },
+  "clouds_raw.png": {
+    "settings": "16:9, 2k",
+    "prompt": "Four separate puffy cumulus clouds drawn in the style of an antique map engraving, fine black ink line hatching on cream off-white paper with a soft hand-tinted wash, each cloud a distinct printed element with generous empty space between them, arranged loosely in a 2 by 2 grid, all isolated on a perfectly flat, uniform, solid chroma-key green (#00B140) background. No sky, no shadow, no text, no frame.",
+    "url": "https://s15-kling.klingai.com/kimg/EMXN1y8qnwEKBnVwbG9hZBIOeWxhYi1zdHVudC1zZ3AahAFLbGluZ0FJX0tsaW5nQUlfS29sb3JzLXYzXzAtb21uaS10Mmktc3I0NV9kaXN0aWxsX1NHUF9QUk9EX2FpX3dlYl8zMjMyNzg2ODQzMTc0NDNfMDE5MzFjZTNfOTIwYjU0M2Y5YmI2ZTM4ZGMyNzk0YzA5MjU2ZjUzZTc1eGI0OS5wbmc.origin?x-kcdn-pid=112372"
+  },
+  "strips_raw.png": {
+    "settings": "16:9, 2k",
+    "prompt": "Three separate blank torn strips of aged cream newsprint paper, long horizontal rectangles of different lengths with rough fibrous torn edges, faint stains and subtle paper grain, photographed flat from directly above with soft even light, each strip separated by generous space, all isolated on a perfectly flat, uniform, solid chroma-key green (#00B140) background. Completely blank paper: no text, no print, no shadow.",
+    "url": "https://s15-kling.klingai.com/kimg/EMXN1y8qnwEKBnVwbG9hZBIOeWxhYi1zdHVudC1zZ3AahAFLbGluZ0FJX0tsaW5nQUlfS29sb3JzLXYzXzAtb21uaS10Mmktc3I0NV9kaXN0aWxsX1NHUF9QUk9EX2FpX3dlYl8zMjMyNzg2ODUzMTg3NzZfMjk5ZmY1ODlfNGFkYjQ0N2E1NjM0NWRmNjUwY2UzOGJiMjE1ZTViMGZpbDhnZS5wbmc.origin?x-kcdn-pid=112372"
+  }
+}
