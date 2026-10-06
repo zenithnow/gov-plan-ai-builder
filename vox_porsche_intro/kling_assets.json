@@ -1,0 +1,13 @@
+{
+  "note": "Kling 결과 URL은 생성 후 24시간 뒤 만료됩니다 (생성일 2026-10-06). 사용한 파일은 assets/ 에 저장돼 있습니다.",
+  "car_raw.png": {
+    "model": "kling-image-v3_0_omni (text_to_image, 16:9, 2k, 후보 2장 중 A)",
+    "prompt": "Top-down bird's-eye orthographic view, camera directly overhead, of a sky-blue Porsche 718 Boxster two-seat mid-engine roadster with the soft top down so the open cockpit with two black leather seats is visible from above. The car is perfectly horizontal with its front pointing to the right, centered, filling about 70% of the frame width. Glossy pastel sky-blue paint, black alloy wheels, crisp body lines, clean studio product shot with soft even lighting, sharp detail. Isolated on a perfectly flat, uniform, solid pure magenta (#FF00FF) background. No ground, no shadow, no road, no text, no logo, no watermark.",
+    "url": "https://s15-kling.klingai.com/kimg/EMXN1y8qnwEKBnVwbG9hZBIOeWxhYi1zdHVudC1zZ3AahAFLbGluZ0FJX0tsaW5nQUlfS29sb3JzLXYzXzAtb21uaS10Mmktc3I0NV9kaXN0aWxsX1NHUF9QUk9EX2FpX3dlYl8zMjMyNzY3OTc2ODM4MThfOTkyMWE4NWJfMWU4NjJjOTNhNDhkNTJkYmIwNjEyNmMxNTMyY2QzOWJybmQ5YS5wbmc.origin?x-kcdn-pid=112372"
+  },
+  "bg_raw.png": {
+    "model": "kling-image-v3_0_omni (text_to_image, 16:9, 2k, 후보 2장 중 A)",
+    "prompt": "Top-down flat view of an empty pale sky-blue painted asphalt surface, seen directly from above, matte finish with fine natural grain and subtle mottled variations in light sky blue and powder blue, faint paper-print texture like a risograph poster, soft even daylight, minimal and clean, VOX documentary collage style background. Completely empty: no road markings, no objects, no cars, no shadows, no text.",
+    "url": "https://s15-kling.klingai.com/kimg/EMXN1y8qnwEKBnVwbG9hZBIOeWxhYi1zdHVudC1zZ3AahAFLbGluZ0FJX0tsaW5nQUlfS29sb3JzLXYzXzAtb21uaS10Mmktc3I0NV9kaXN0aWxsX1NHUF9QUk9EX2FpX3dlYl8zMjMyNzY3OTkzMTg0NDFfYWM3MzYxYWRfODNlMzUzM2RhYTJjNjM5Mjk0YTk2NGExMGNhZWM3MjA5Mmpydi5wbmc.origin?x-kcdn-pid=112372"
+  }
+}
